@@ -1,0 +1,52 @@
+# Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+.gitattributes
+.mvn
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse/STS
+.classpath
+.project
+.settings/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Others
+*.swp
+*~
+
+# Spring Boot
+spring.log
+
+# Windows
+*.bat
+
+# Mac
+*.DS_Store
+
+# Linux
+*~
+
