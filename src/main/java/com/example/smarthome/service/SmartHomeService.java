@@ -40,10 +40,15 @@ public class SmartHomeService {
     }
 
     public SmartDevice setLevel(String id, int level) {
+        SmartDevice device = requireDevice(id);
+        if (device.getLevel() == null) {
+            throw new IllegalArgumentException(
+                    "Device " + id + " does not support level control."
+            );
+        }
         if (level < 0 || level > 100) {
             throw new IllegalArgumentException("Level must be between 0 and 100.");
         }
-        SmartDevice device = requireDevice(id);
         device.setLevel(level);
         return device;
     }
