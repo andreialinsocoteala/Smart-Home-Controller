@@ -1,5 +1,5 @@
 
-
+# Week 1
 ## Bean Creation
 
 The application demonstrates three different ways of defining Spring beans:
@@ -47,14 +47,54 @@ When a device is turned on, turned off, or has its level changed, an entry is re
 
 The application dynamically registers a new device (a smart plug) at startup using the application context.
 
+# Week 2
+
 ## REST API
 
-A REST controller exposes endpoints for:
+The application exposes a REST API for managing smart-home devices:
 
-* listing all devices
-* reading an individual device by ID
-* turning devices on/off
-* setting device levels
-* retrieving the event log produced by the aspect
+* GET /api/devices – list all devices
+* GET /api/devices/{id} – retrieve device details
+* POST /api/devices/{id}/on / off – change device state
+* POST /api/devices/{id}/level – update the level (for lights and thermostats)
+* GET /api/devices/log – read the history of state changes
 
-All operations are identified through device IDs, allowing multiple devices of the same type to coexist and be controlled independently.
+All endpoints return ResponseEntity, allowing explicit control of HTTP status codes, headers, and response bodies. \
+Validation and errors are handled locally using try/catch, producing clear REST responses (200, 202, 400, etc.). \
+Business logic was moved into SmartHomeService, while the controller focuses only on HTTP concerns.
+
+## Thymeleaf 
+
+A web interface (devices.html) was added to interact with the system visually. (+ DevicePageController)
+
+* Displays all devices in a table with actions for:
+
+    * turning devices ON / OFF
+
+    * updating levels (only for devices that support them)
+
+* Includes an interactive smart-home layout, where each device is represented visually:
+
+    * lights change brightness according to level
+
+    * thermostats display temperature and ON/OFF state
+
+* alarms change color based on sensitivity level
+
+* one alarm is placed at the main entrance, one at the garage, and the basic alarm is shown in an outdoor shed
+
+![Smart Home Interface](assets/img.png)
+
+## Web Scopes in Spring (Request, Session, Application)
+1. Request Scope \
+Used to attach information that belongs only to the current HTTP request.
+The application creates a request-scoped trace object so each REST call receives its own unique metadata.\
+```header("request-id", requestTrace.getRequestId())``` - each request gets a unique request ID that is logged and returned in the response headers.
+
+2. Session Scope \
+Used to track data that should persist for the current user across multiple requests.
+The app stores per-user statistics such as how many device actions they performed and which device they interacted with last.
+
+3. Application Scope \
+Used to keep global information shared by the entire application.
+Here, the system tracks overall usage statistics: total device actions, total ON/OFF operations, etc.
