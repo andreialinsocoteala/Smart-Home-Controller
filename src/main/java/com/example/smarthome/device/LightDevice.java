@@ -40,6 +40,11 @@ public class LightDevice implements SmartDevice {
     @Override
     public void setLevel(int level) {
         this.level = level;
+        if(level != 0) {
+            status = DeviceStatus.ON;
+        } else {
+            status = DeviceStatus.OFF;
+        }
         System.out.println(name + " level=" + level);
     }
 
