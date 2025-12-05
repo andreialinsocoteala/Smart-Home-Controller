@@ -3,64 +3,430 @@
 <head>
     <title>Smart devices</title>
     <meta charset="UTF-8"/>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+        }
+
+        .house-wrapper {
+            position: relative;
+            width: 520px;
+            height: 360px;
+        }
+
+        .house-body {
+            position: absolute;
+            inset: 0;
+            border-radius: 6px;
+            border: 3px solid #555;
+            background: #e7e7e7;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            padding: 6px;
+            box-sizing: border-box;
+        }
+
+        .house-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 0.9fr;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .room {
+            position: relative;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+            background: #f5f5f5;
+            padding: 4px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .room-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .room-inner {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 18px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .door {
+            position: absolute;
+            width: 26px;
+            height: 40px;
+            background: #caa472;
+            border: 2px solid #8b6b3f;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .door.main { bottom: -18px; left: 50%; transform: translateX(-50%); }
+        .door.garage { bottom: -18px; right: 20px; }
+
+        .shed {
+            position: absolute;
+            right: -120px;
+            top: 40%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 80px;
+            border-radius: 4px;
+            border: 2px solid #555;
+            background: #ddd;
+            padding: 4px;
+            box-sizing: border-box;
+        }
+
+        .shed-title {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .light-bulb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #222;
+            box-shadow: 0 0 4px rgba(0,0,0,0.6);
+        }
+
+        .thermostat {
+            width: 70px;
+            height: 40px;
+            border-radius: 6px;
+            background: #333;
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thermostat.off { opacity: 0.4; }
+
+        .alarm {
+            width: 60px;
+            height: 26px;
+            border-radius: 20px;
+            background: #777;
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #555;
+        }
+
+        .alarm-label {
+            font-size: 10px;
+            margin-top: 2px;
+            color: #444;
+        }
+    </style>
+
+
+
 </head>
 <body>
+
 <h1>Smart devices</h1>
 
-<table border="1">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Status</th>
-        <th>Level</th>
-        <th colspan="3">Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="device : ${devices}">
-        <td th:text="${device.id}"></td>
-        <td th:text="${device.name}"></td>
-        <td th:text="${device.status}"></td>
+<div class="layout">
+    <div>
+        <table id="devices-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Level</th>
+                <th colspan="3">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="device : ${devices}"
+                th:attr="data-device-id=${device.id}">
+                <td th:text="${device.id}"></td>
+                <td th:text="${device.name}"></td>
 
-        <td>
-            <span th:if="${device.level == null}">–</span>
+                <td class="status-cell" th:text="${device.status}"></td>
 
-            <form th:if="${device.level != null}"
-                  th:action="@{'/devices/' + ${device.id} + '/level'}"
-                  method="post"
-                  style="margin:0">
+                <td>
+                    <span th:if="${device.level == null}">–</span>
+                    <input th:if="${device.level != null}"
+                           type="number"
+                           min="0" max="100"
+                           th:value="${device.level}"
+                           th:attr="data-device-id=${device.id}"
+                           class="level-input"/>
+                </td>
 
-                <input type="number"
-                       name="level"
-                       min="0" max="100"
-                       th:value="${device.level}"/>
+                <td>
+                    <button type="button"
+                            class="btn-set-level"
+                            th:if="${device.level != null}"
+                            th:attr="data-device-id=${device.id}">
+                        Set
+                    </button>
+                </td>
 
-                <button type="submit">Set</button>
-            </form>
-        </td>
+                <td>
+                    <button type="button"
+                            class="btn-on"
+                            th:attr="data-device-id=${device.id}">
+                        ON
+                    </button>
+                </td>
 
-        <td>
-            <form th:action="@{'/devices/' + ${device.id} + '/on'}"
-                  method="post" style="margin:0">
-                <button type="submit">ON</button>
-            </form>
-        </td>
+                <td>
+                    <button type="button"
+                            class="btn-off"
+                            th:attr="data-device-id=${device.id}">
+                        OFF
+                    </button>
+                </td>
+            </tr>
+            </tbody>
 
-        <td>
-            <form th:action="@{'/devices/' + ${device.id} + '/off'}"
-                  method="post" style="margin:0">
-                <button type="submit">OFF</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<p>
-    <a href="/devices/logs">
-        <button type="button">View Logs</button>
-    </a>
-</p>
+        </table>
+
+        <p class="logs-button">
+            <a href="/devices/logs">
+                <button type="button">View Logs</button>
+            </a>
+        </p>
+    </div>
+
+    <div class="house-wrapper">
+        <div class="house-body">
+            <div class="house-grid">
+
+                <div class="room">
+                    <div class="room-title">Living room</div>
+                    <div class="room-inner">
+                        <div id="light-living-visual" class="light-bulb"></div>
+                        <div id="thermo-living-visual" class="thermostat off">
+                            <div id="thermo-living-temp">--°C</div>
+                            <div id="thermo-living-status">OFF</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="room">
+                    <div class="room-title">Bedroom</div>
+                    <div class="room-inner">
+                        <div id="light-bedroom-visual" class="light-bulb"></div>
+                        <div id="thermo-bedroom-visual" class="thermostat off">
+                            <div id="thermo-bedroom-temp">--°C</div>
+                            <div id="thermo-bedroom-status">OFF</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="room">
+                    <div class="room-title">Hallway / Main entrance</div>
+                    <div class="room-inner" style="flex-direction: column;">
+                        <div id="alarm-adv-2-visual" class="alarm">Adv 2</div>
+                        <div class="alarm-label">Interior alarm</div>
+                    </div>
+                    <div class="door main"></div>
+                </div>
+
+                <div class="room">
+                    <div class="room-title">Garage / Side entrance</div>
+                    <div class="room-inner" style="flex-direction: column;">
+                        <div id="alarm-adv-1-visual" class="alarm">Adv 1</div>
+                        <div class="alarm-label">Garage / side door</div>
+                    </div>
+                    <div class="door garage"></div>
+                </div>
+            </div>
+
+            <div class="shed">
+                <div class="shed-title">Outdoor shed</div>
+                <div id="alarm-basic-visual" class="alarm">Basic</div>
+                <div class="alarm-label">Outside perimeter</div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    const deviceVisualConfig = {
+        "light-1": {
+            type: "light",
+            elementId: "light-living-visual"
+        },
+        "light-2": {
+            type: "light",
+            elementId: "light-bedroom-visual"
+        },
+
+        "thermo-1": {
+            type: "thermostat",
+            elementId: "thermo-living-visual",
+            tempId: "thermo-living-temp",
+            statusId: "thermo-living-status"
+        },
+        "thermo-2": {
+            type: "thermostat",
+            elementId: "thermo-bedroom-visual",
+            tempId: "thermo-bedroom-temp",
+            statusId: "thermo-bedroom-status"
+        },
+
+        "alarm-basic": {
+            type: "alarm",
+            elementId: "alarm-basic-visual"
+        },
+        "alarm-adv-1": {
+            type: "alarm",
+            elementId: "alarm-adv-1-visual"
+        },
+        "alarm-adv-2": {
+            type: "alarm",
+            elementId: "alarm-adv-2-visual"
+        }
+    };
+
+    async function fetchDevices() {
+        const response = await fetch('/api/devices');
+        return await response.json();
+    }
+
+    function updateVisuals(devices) {
+        devices.forEach(d => {
+            const cfg = deviceVisualConfig[d.id];
+            if (!cfg) return;
+
+            if (cfg.type === "light") {
+                const el = document.getElementById(cfg.elementId);
+                if (!el) return;
+                if (d.status === "ON") {
+                    const level = d.level ?? 100;
+                    el.style.backgroundColor = `rgba(255, 255, 100, ${Math.max(0.1, level / 100)})`;
+                    el.style.boxShadow = `0 0 ${5 + level / 5}px rgba(255, 255, 150, 0.9)`;
+                } else {
+                    el.style.backgroundColor = '#222';
+                    el.style.boxShadow = '0 0 4px rgba(0,0,0,0.5)';
+                }
+            }
+
+            if (cfg.type === "thermostat") {
+                const el = document.getElementById(cfg.elementId);
+                if (!el) return;
+
+                const tempEl = document.getElementById(cfg.tempId);
+                const statusEl = document.getElementById(cfg.statusId);
+
+                if (tempEl) tempEl.textContent = (d.level ?? '--') + '°C';
+                if (statusEl) statusEl.textContent = d.status;
+
+                if (d.status === "ON") el.classList.remove('off');
+                else el.classList.add('off');
+            }
+
+
+            if (cfg.type === "alarm") {
+                const el = document.getElementById(cfg.elementId);
+                if (!el) return;
+
+                const level = d.level ?? 0;
+                let color = '#4caf50'; // verde
+                if (level > 75) color = '#f44336';
+                else if (level > 50) color = '#ff9800';
+                else if (level > 25) color = '#ffeb3b';
+
+                el.style.backgroundColor = color;
+                el.textContent = level;
+                el.style.opacity = (d.status === "ON") ? '1' : '0.4';
+            }
+            const row = document.querySelector(`tr[data-device-id="${d.id}"]`);
+            if (row) {
+                const statusCell = row.querySelector('.status-cell');
+                if (statusCell) {
+                    statusCell.textContent = d.status;
+                }
+
+                const input = row.querySelector('.level-input');
+                if (input) {
+                    if (cfg && cfg.type === 'light' && d.status === 'OFF') {
+                        input.value = 0;
+                    } else {
+                        input.value = (d.level ?? 0);
+                    }
+                }
+            }
+        });
+    }
+
+    async function refresh() {
+        const devices = await fetchDevices();
+        updateVisuals(devices);
+    }
+
+    async function callAction(id, action, level) {
+        let url = `/api/devices/${id}/${action}`;
+        let options = {method: 'POST', headers: {'Content-Type': 'application/json'}};
+
+        if (action === 'level') {
+            options.body = JSON.stringify({level: level});
+        }
+
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            console.error('Error calling action', action, 'for', id);
+        }
+        await refresh();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.btn-on').forEach(b => {
+            b.addEventListener('click', () => {
+                const id = b.getAttribute('data-device-id');
+                callAction(id, 'on');
+            });
+        });
+
+        document.querySelectorAll('.btn-off').forEach(b => {
+            b.addEventListener('click', () => {
+                const id = b.getAttribute('data-device-id');
+                callAction(id, 'off');
+            });
+        });
+
+        document.querySelectorAll('.btn-set-level').forEach(b => {
+            b.addEventListener('click', () => {
+                const id = b.getAttribute('data-device-id');
+                const input = document.querySelector(`input.level-input[data-device-id="${id}"]`);
+                const level = parseInt(input.value, 10);
+                callAction(id, 'level', level);
+            });
+        });
+
+        refresh();
+        
+    });
+</script>
 
 </body>
 </html>
