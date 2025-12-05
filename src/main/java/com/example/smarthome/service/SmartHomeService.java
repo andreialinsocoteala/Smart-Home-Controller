@@ -6,9 +6,7 @@ import com.example.smarthome.logging.StateChangeLogger;
 import com.example.smarthome.registry.DeviceRegistry;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class SmartHomeService {
@@ -21,53 +19,33 @@ public class SmartHomeService {
         this.logger = logger;
     }
 
-    public Map<String, Object> getDeviceDetails(String id) {
-        SmartDevice d = requireDevice(id);
-
-        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-        map.put("id", d.getId());
-        map.put("name", d.getName());
-        map.put("status", d.getStatus());
-        Integer level = d.getLevel();
-        if (level != null) {
-            map.put("level", level);
-        }
-        return map;
+    public SmartDevice getDevice(String id) {
+        return requireDevice(id);
     }
 
-    public List<LinkedHashMap<String, Object>> getAllDevices() {
-        return registry.getAllDevices()
-                .stream()
-                .map(d -> {
-                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                    map.put("id", d.getId());
-                    map.put("name", d.getName());
-                    map.put("status", d.getStatus());
-                    Integer level = d.getLevel();
-                    if (level != null) {
-                        map.put("level", level);
-                    }
-                    return map;
-                })
-                .toList();
+    public List<SmartDevice> getAllDevices() {
+        return registry.getAllDevices();
     }
 
-    public String turnOn(String id) {
+    public SmartDevice turnOn(String id) {
         SmartDevice device = requireDevice(id);
         device.turnOn();
-        return "Device " + id + " turned ON";
+        return device;
     }
 
-    public String turnOff(String id) {
+    public SmartDevice turnOff(String id) {
         SmartDevice device = requireDevice(id);
         device.turnOff();
-        return "Device " + id + " turned OFF";
+        return device;
     }
 
-    public String setLevel(String id, int level) {
+    public SmartDevice setLevel(String id, int level) {
+        if (level < 0 || level > 100) {
+            throw new IllegalArgumentException("Level must be between 0 and 100.");
+        }
         SmartDevice device = requireDevice(id);
         device.setLevel(level);
-        return "Device " + id + " level set to " + level;
+        return device;
     }
 
     public List<StateChange> getLog() {
