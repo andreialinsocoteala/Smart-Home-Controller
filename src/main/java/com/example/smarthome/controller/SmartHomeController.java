@@ -3,6 +3,7 @@ package com.example.smarthome.controller;
 import com.example.smarthome.device.SmartDevice;
 import com.example.smarthome.logging.StateChange;
 import com.example.smarthome.service.SmartHomeService;
+import com.example.smarthome.session.RequestTrace;
 import com.example.smarthome.utils.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,11 @@ import java.util.Map;
 public class SmartHomeController {
 
     private final SmartHomeService service;
+    private final RequestTrace requestTrace;
 
-    public SmartHomeController(SmartHomeService service) {
+    public SmartHomeController(SmartHomeService service, RequestTrace requestTrace) {
         this.service = service;
+        this.requestTrace = requestTrace;
     }
 
     @GetMapping("/{id}")
@@ -29,7 +32,7 @@ public class SmartHomeController {
             SmartDevice d = service.getDevice(id);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("device-status", d.getStatus().name());
+            headers.add("request-id", requestTrace.getRequestId());
 
             Map<String, Object> body = toResponse(d);
 
@@ -54,7 +57,9 @@ public class SmartHomeController {
                 .toList();
 
         return ResponseEntity
-                .ok(body);
+                .status(HttpStatus.OK)
+                .header("request-id", requestTrace.getRequestId())
+                .body(body);
     }
 
     @PostMapping("/{id}/on")
@@ -64,7 +69,7 @@ public class SmartHomeController {
 
             return ResponseEntity
                     .status(HttpStatus.ACCEPTED)
-                    .header("device-status", d.getStatus().name())
+                    .header("request-id", requestTrace.getRequestId())
                     .body(toResponse(d));
 
         } catch (IllegalArgumentException e) {
@@ -82,7 +87,7 @@ public class SmartHomeController {
 
             return ResponseEntity
                     .status(HttpStatus.ACCEPTED)
-                    .header("device-status", d.getStatus().name())
+                    .header("request-id", requestTrace.getRequestId())
                     .body(toResponse(d));
 
         } catch (IllegalArgumentException e) {
@@ -108,7 +113,7 @@ public class SmartHomeController {
             SmartDevice d = service.setLevel(id, request.getLevel());
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add("device-status", d.getStatus().name());
+            headers.add("request-id", requestTrace.getRequestId());
 
             return ResponseEntity
                     .status(HttpStatus.ACCEPTED)
@@ -126,7 +131,9 @@ public class SmartHomeController {
     @GetMapping("/log")
     public ResponseEntity<List<StateChange>> log() {
         return ResponseEntity
-                .ok(service.getLog());
+                .status(HttpStatus.OK)
+                .header("request-id", requestTrace.getRequestId())
+                .body(service.getLog());
     }
 
     private Map<String, Object> toResponse(SmartDevice d) {
