@@ -1,9 +1,7 @@
 package com.example.smarthome.controller;
 
-import com.example.smarthome.device.SmartDevice;
 import com.example.smarthome.logging.StateChange;
-import com.example.smarthome.logging.StateChangeLogger;
-import com.example.smarthome.registry.DeviceRegistry;
+import com.example.smarthome.service.SmartHomeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -14,85 +12,39 @@ import java.util.Map;
 @RequestMapping("/api/devices")
 public class SmartHomeController {
 
-    private final DeviceRegistry registry;
-    private final StateChangeLogger logger;
+    private final SmartHomeService service;
 
-    public SmartHomeController(DeviceRegistry registry, StateChangeLogger logger) {
-        this.registry = registry;
-        this.logger = logger;
+    public SmartHomeController(SmartHomeService service) {
+        this.service = service;
     }
 
     @GetMapping("/{id}")
     public Map<String, Object> getDevice(@PathVariable String id) {
-        SmartDevice d = registry.getById(id);
-        if (d == null) {
-            throw new IllegalArgumentException("Device not found: " + id);
-        }
-
-        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-        map.put("id", d.getId());
-        map.put("name", d.getName());
-        map.put("status", d.getStatus());
-        Integer level = d.getLevel();
-        if (level != null) {
-            map.put("level", level);
-        }
-        return map;
+        return service.getDeviceDetails(id);
     }
 
     @PostMapping("/{id}/on")
     public String turnOn(@PathVariable String id) {
-        SmartDevice device = requireDevice(id);
-        device.turnOn();
-        return "Device " + id + " turned ON";
+        return service.turnOn(id);
     }
 
     @PostMapping("/{id}/off")
     public String turnOff(@PathVariable String id) {
-        SmartDevice device = requireDevice(id);
-        device.turnOff();
-        return "Device " + id + " turned OFF";
+        return service.turnOff(id);
     }
 
     @PostMapping("/{id}/level/{level}")
     public String setLevel(@PathVariable String id, @PathVariable int level) {
-        SmartDevice device = requireDevice(id);
-        device.setLevel(level);
-        return "Device " + id + " level set to " + level;
-    }
-
-    private SmartDevice requireDevice(String id) {
-        SmartDevice d = registry.getById(id);
-        if (d == null) {
-            throw new IllegalArgumentException("Device not found: " + id);
-        }
-        return d;
+        return service.setLevel(id, level);
     }
 
     @GetMapping
     public List<LinkedHashMap<String, Object>> allDevices() {
-        return registry.getAllDevices()
-                .stream()
-                .map(d -> {
-                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-
-                    map.put("id", d.getId());
-                    map.put("name", d.getName());
-                    map.put("status", d.getStatus());
-
-                    Integer level = d.getLevel();
-                    if (level != null) {
-                        map.put("level", level);
-                    }
-
-                    return map;
-                })
-                .toList();
+        return service.getAllDevices();
     }
-
 
     @GetMapping("/log")
     public List<StateChange> log() {
-        return logger.getChanges();
+        return service.getLog();
     }
 }
