@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Device Logs</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h1>Device Logs</h1>
+
+<p><a href="/devices">Back to devices</a></p>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Timestamp</th>
+        <th>Device ID</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="log : ${logs}">
+        <td th:text="${log.timestamp}"></td>
+        <td th:text="${log.deviceId}"></td>
+        <td th:text="${log.action}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
