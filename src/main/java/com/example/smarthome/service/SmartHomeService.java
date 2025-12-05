@@ -4,6 +4,7 @@ import com.example.smarthome.device.SmartDevice;
 import com.example.smarthome.logging.StateChange;
 import com.example.smarthome.logging.StateChangeLogger;
 import com.example.smarthome.registry.DeviceRegistry;
+import com.example.smarthome.session.ApplicationStats;
 import com.example.smarthome.session.UserSessionPreferences;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,14 @@ public class SmartHomeService {
     private final DeviceRegistry registry;
     private final StateChangeLogger logger;
     private final UserSessionPreferences sessionPreferences;
+    private final ApplicationStats applicationStats;
 
-    public SmartHomeService(DeviceRegistry registry, StateChangeLogger logger, UserSessionPreferences sessionPreferences) {
+    public SmartHomeService(DeviceRegistry registry, StateChangeLogger logger,
+                            UserSessionPreferences sessionPreferences, ApplicationStats applicationStats) {
         this.registry = registry;
         this.logger = logger;
         this.sessionPreferences = sessionPreferences;
+        this.applicationStats = applicationStats;
     }
 
     public SmartDevice getDevice(String id) {
@@ -34,6 +38,7 @@ public class SmartHomeService {
         SmartDevice device = requireDevice(id);
         device.turnOn();
         sessionPreferences.registerAction(id);
+        applicationStats.registerOn();
         return device;
     }
 
@@ -41,6 +46,7 @@ public class SmartHomeService {
         SmartDevice device = requireDevice(id);
         device.turnOff();
         sessionPreferences.registerAction(id);
+        applicationStats.registerOff();
         return device;
     }
 
@@ -56,6 +62,7 @@ public class SmartHomeService {
         }
         device.setLevel(level);
         sessionPreferences.registerAction(id);
+        applicationStats.registerLevelChange();
         return device;
     }
 

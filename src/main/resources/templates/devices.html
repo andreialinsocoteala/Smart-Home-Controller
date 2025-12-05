@@ -337,6 +337,12 @@
             <span id="session-last-device"
                   th:text="${sessionLastDevice != null ? sessionLastDevice : '-'}">-</span>
         </p>
+
+        <p style="font-size:11px; color:#9ca3af; margin-top:4px;">
+            Global actions: <span id="global-total-actions" th:text="${globalTotalActions}">0</span>
+            • ON: <span id="global-on-actions" th:text="${globalOnCommands}">0</span>
+            • OFF: <span id="global-off-actions" th:text="${globalOffCommands}">0</span>
+        </p>
         <table id="devices-table">
             <thead>
             <tr>
@@ -520,6 +526,22 @@
         if (lastDeviceEl) {
             lastDeviceEl.textContent = info.lastDeviceId ?? '-';
         }
+
+        const globalTotalEl = document.getElementById('global-total-actions');
+        if (globalTotalEl && typeof info.globalTotalActions === 'number') {
+            globalTotalEl.textContent = info.globalTotalActions;
+        }
+
+        const globalOnEl = document.getElementById('global-on-actions');
+        if (globalOnEl && typeof info.globalOnCommands === 'number') {
+            globalOnEl.textContent = info.globalOnCommands;
+        }
+
+        const globalOffEl = document.getElementById('global-off-actions');
+        if (globalOffEl && typeof info.globalOffCommands === 'number') {
+            globalOffEl.textContent = info.globalOffCommands;
+        }
+
     }
     function updateVisuals(devices) {
         devices.forEach(d => {

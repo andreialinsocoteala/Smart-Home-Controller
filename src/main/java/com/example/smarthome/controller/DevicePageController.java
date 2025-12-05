@@ -2,6 +2,7 @@ package com.example.smarthome.controller;
 
 import com.example.smarthome.device.SmartDevice;
 import com.example.smarthome.service.SmartHomeService;
+import com.example.smarthome.session.ApplicationStats;
 import com.example.smarthome.session.UserSessionPreferences;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +18,13 @@ public class DevicePageController {
 
     private final SmartHomeService service;
     private final UserSessionPreferences sessionPreferences;
+    private final ApplicationStats applicationStats;
 
-    public DevicePageController(SmartHomeService service, UserSessionPreferences sessionPreferences) {
+    public DevicePageController(SmartHomeService service, UserSessionPreferences sessionPreferences
+    , ApplicationStats applicationStats) {
         this.service = service;
         this.sessionPreferences = sessionPreferences;
+        this.applicationStats = applicationStats;
     }
 
     @GetMapping
@@ -28,6 +32,10 @@ public class DevicePageController {
         model.addAttribute("devices", service.getAllDevices());
         model.addAttribute("sessionActions", sessionPreferences.getActionsCount());
         model.addAttribute("sessionLastDevice", sessionPreferences.getLastDeviceId());
+
+        model.addAttribute("globalTotalActions", applicationStats.getTotalActions());
+        model.addAttribute("globalOnCommands", applicationStats.getTotalOnCommands());
+        model.addAttribute("globalOffCommands", applicationStats.getTotalOffCommands());
         return "devices";
     }
 
@@ -64,6 +72,11 @@ public class DevicePageController {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("actionsCount", sessionPreferences.getActionsCount());
         map.put("lastDeviceId", sessionPreferences.getLastDeviceId());
+
+        map.put("globalTotalActions", applicationStats.getTotalActions());
+        map.put("globalOnCommands", applicationStats.getTotalOnCommands());
+        map.put("globalOffCommands", applicationStats.getTotalOffCommands());
+
         return map;
     }
 
