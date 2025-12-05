@@ -4,6 +4,7 @@ import com.example.smarthome.device.SmartDevice;
 import com.example.smarthome.logging.StateChange;
 import com.example.smarthome.logging.StateChangeLogger;
 import com.example.smarthome.registry.DeviceRegistry;
+import com.example.smarthome.session.UserSessionPreferences;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +14,12 @@ public class SmartHomeService {
 
     private final DeviceRegistry registry;
     private final StateChangeLogger logger;
+    private final UserSessionPreferences sessionPreferences;
 
-    public SmartHomeService(DeviceRegistry registry, StateChangeLogger logger) {
+    public SmartHomeService(DeviceRegistry registry, StateChangeLogger logger, UserSessionPreferences sessionPreferences) {
         this.registry = registry;
         this.logger = logger;
+        this.sessionPreferences = sessionPreferences;
     }
 
     public SmartDevice getDevice(String id) {
@@ -30,12 +33,14 @@ public class SmartHomeService {
     public SmartDevice turnOn(String id) {
         SmartDevice device = requireDevice(id);
         device.turnOn();
+        sessionPreferences.registerAction(id);
         return device;
     }
 
     public SmartDevice turnOff(String id) {
         SmartDevice device = requireDevice(id);
         device.turnOff();
+        sessionPreferences.registerAction(id);
         return device;
     }
 
@@ -50,6 +55,7 @@ public class SmartHomeService {
             throw new IllegalArgumentException("Level must be between 0 and 100.");
         }
         device.setLevel(level);
+        sessionPreferences.registerAction(id);
         return device;
     }
 

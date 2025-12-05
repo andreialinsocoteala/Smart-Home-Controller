@@ -329,6 +329,14 @@
             <div class="card-subtitle">Control lights, alarms and thermostats</div>
         </div>
 
+        <p style="font-size:12px; color:#6b7280;">
+            Session actions:
+            <span id="session-actions"
+                  th:text="${sessionActions}">0</span>
+            • Last device:
+            <span id="session-last-device"
+                  th:text="${sessionLastDevice != null ? sessionLastDevice : '-'}">-</span>
+        </p>
         <table id="devices-table">
             <thead>
             <tr>
@@ -499,7 +507,20 @@
         const response = await fetch('/api/devices');
         return await response.json();
     }
+    async function refreshSessionInfo() {
+        const response = await fetch('/devices/session-info');
+        const info = await response.json();
 
+        const actionsEl = document.getElementById('session-actions');
+        if (actionsEl && typeof info.actionsCount === 'number') {
+            actionsEl.textContent = info.actionsCount;
+        }
+
+        const lastDeviceEl = document.getElementById('session-last-device');
+        if (lastDeviceEl) {
+            lastDeviceEl.textContent = info.lastDeviceId ?? '-';
+        }
+    }
     function updateVisuals(devices) {
         devices.forEach(d => {
             const cfg = deviceVisualConfig[d.id];
@@ -584,6 +605,7 @@
             console.error('Error calling action', action, 'for', id);
         }
         await refresh();
+        await refreshSessionInfo();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
