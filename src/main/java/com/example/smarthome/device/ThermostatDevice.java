@@ -8,9 +8,10 @@ public class ThermostatDevice implements SmartDevice {
     private DeviceStatus status = DeviceStatus.OFF;
     private int temperature = 21;
 
-    public ThermostatDevice(String id, String name) {
+    public ThermostatDevice(String id, String name, int initialTemperature) {
         this.id = id;
         this.name = name;
+        this.temperature = initialTemperature;
     }
 
     @Override public String getId() { return id; }

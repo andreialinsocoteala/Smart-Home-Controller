@@ -8,9 +8,10 @@ public class AdvancedAlarmDevice implements SmartDevice {
     private DeviceStatus status = DeviceStatus.OFF;
     private int sensitivity = 5;
 
-    public AdvancedAlarmDevice(String id, String name) {
+    public AdvancedAlarmDevice(String id, String name, int initialSensitivity) {
         this.id = id;
         this.name = name;
+        this.sensitivity = initialSensitivity;
     }
 
     @Override public String getId() { return id; }

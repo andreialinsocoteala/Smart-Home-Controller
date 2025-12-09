@@ -6,11 +6,12 @@ public class LightDevice implements SmartDevice {
     private final String name;
 
     private DeviceStatus status = DeviceStatus.OFF;
-    private int level = 0;
+    private int level;
 
-    public LightDevice(String id, String name) {
+    public LightDevice(String id, String name, int initialLevel) {
         this.id = id;
         this.name = name;
+        this.level = initialLevel;
     }
 
     @Override
